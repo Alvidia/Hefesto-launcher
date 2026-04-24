@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hefesto — Forja tu propio Destino</title>
+<meta name="description" content="Grooming de precisión para el hombre moderno. Nacido en Barcelona.">
+<meta property="og:title" content="Hefesto">
+<meta property="og:description" content="Grooming de precisión para el hombre moderno. Nacido en Barcelona.">
+<meta property="og:type" content="website">
+<!-- CSP: tighten allowed sources -->
+<meta http-equiv="Content-Security-Policy"
+  content="default-src 'self';
+           script-src 'self' 'unsafe-inline';
+           style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+           font-src https://fonts.gstatic.com;
+           img-src 'self' data: blob:;
+           connect-src https://a.klaviyo.com;
+           frame-ancestors 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ─── CSS VARIABLES ─────────────────────────────────────────── */
+:root {
+  --navy:        #102136;
+  --navy-deep:   #0C1A2B;
+  --navy-dark:   #080F18;
+  --navy-mid:    #1A3550;
+  --silver:      #A8B2BC;
+  --silver-dim:  #6B7F8F;
+  --silver-light:#D6DCE4;
+  --white:       #F0F4F8;
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── RESET ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background-color: var(--navy);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Noise grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.04;
+}
+
+img { max-width: 100%; display: block; }
+a   { text-decoration: none; color: inherit; }
+button { cursor: none; border: none; background: none; font-family: 'DM Sans', sans-serif; }
+
+/* ─── CUSTOM CURSOR ─────────────────────────────────────────── */
+.cursor {
+  width: 8px; height: 8px;
+  background-color: var(--silver);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: width .2s var(--ease-out), height .2s var(--ease-out), background .2s;
+  will-change: transform;
+}
+.cursor.expand {
+  width: 28px; height: 28px;
+  background: transparent;
+  border: 1px solid var(--silver);
+}
+
+/* ─── TYPOGRAPHY ────────────────────────────────────────────── */
+.eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--silver); display: block; margin-bottom: 16px;
+}
+h1, h2, h3 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 700; line-height: 1.0;
+}
+
+/* ─── REVEAL SYSTEM ─────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
+}
+.reveal.visible        { opacity: 1; transform: none; }
+.reveal-delay-1        { transition-delay: .1s; }
+.reveal-delay-2        { transition-delay: .2s; }
+.reveal-delay-3        { transition-delay: .3s; }
+.reveal-delay-4        { transition-delay: .4s; }
+
+/* Stagger children inside a revealed parent */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
+}
+.reveal-stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay:.05s; }
+.reveal-stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay:.15s; }
+.reveal-stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay:.25s; }
+.reveal-stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay:.35s; }
+
+/* ─── MODAL ─────────────────────────────────────────────────── */
+#modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(8,15,24,0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity .4s var(--ease-out);
+}
+#modal-overlay.visible { opacity: 1; }
+#modal-overlay.hidden  { display: none; }
+
+#modal {
+  background-color: var(--navy-deep);
+  border: 1px solid var(--silver);
+  border-top: 2px solid var(--silver);
+  border-radius: 3px;
+  max-width: 520px; width: 100%;
+  padding: 48px 40px 40px;
+  position: relative;
+  box-shadow: 0 0 80px rgba(168,178,188,0.12);
+  transform: scale(0.94) translateY(20px);
+  transition: transform .5s var(--ease-out);
+  text-align: center;
+}
+#modal-overlay.visible #modal { transform: scale(1) translateY(0); }
+
+.modal-close {
+  position: absolute; top: 16px; right: 20px;
+  color: var(--silver); font-size: 20px;
+  cursor: none; background: none; border: none; line-height: 1;
+  transition: transform .3s var(--ease-out), color .2s;
+}
+.modal-close:hover { transform: rotate(90deg); color: var(--white); }
+
+.modal-icon  { margin: 0 auto 14px; width: 40px; height: 40px; }
+.modal-rule  { width: 72px; height: 1px; background: var(--silver); margin: 0 auto 22px; }
+
+#modal h2 {
+  font-size: clamp(24px, 4vw, 32px);
+  color: var(--white); margin-bottom: 10px; text-transform: uppercase;
+}
+#modal-form-wrap > p:not(.microcopy) {
+  font-size: 14px; color: var(--silver-light); margin-bottom: 26px;
+  max-width: 340px; margin-left: auto; margin-right: auto;
+}
+.modal-meander {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 8px; opacity: 0.18; overflow: hidden;
+}
+.modal-success {
+  display: none; flex-direction: column;
+  align-items: center; gap: 12px; padding: 20px 0;
+}
+.modal-success.visible { display: flex; }
+.modal-success svg { animation: draw-check .6s var(--ease-out) forwards; }
+@keyframes draw-check {
+  from { stroke-dashoffset: 60; opacity: 0; }
+  to   { stroke-dashoffset: 0;  opacity: 1; }
+}
+.modal-success h3 { font-size: 20px; color: var(--white); text-transform: uppercase; }
+.modal-success span { color: var(--silver); font-size: 13px; font-style: italic; }
+
+/* ─── FORMS ─────────────────────────────────────────────────── */
+.form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+
+.forge-input {
+  width: 100%; height: 52px;
+  background-color: var(--navy);
+  border: 1px solid var(--silver-dim);
+  border-radius: 3px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  padding: 0 18px; outline: none;
+  transition: border-color .3s, box-shadow .3s;
+}
+.forge-input::placeholder { color: var(--silver-dim); }
+.forge-input:focus {
+  border-color: var(--silver);
+  box-shadow: 0 0 0 3px rgba(168,178,188,0.12);
+}
+/* Security: error state */
+.forge-input.error {
+  border-color: #c05050;
+  animation: shake .3s var(--ease-out);
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+
+.forge-btn {
+  width: 100%; height: 52px;
+  background-color: var(--silver);
+  color: var(--navy);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  border: none; border-radius: 3px; cursor: none;
+  position: relative; overflow: hidden;
+  transition: filter .2s, transform .15s;
+}
+.forge-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255,255,255,0.16);
+  transform: translateX(-100%) skewX(-8deg);
+  transition: transform .45s var(--ease-out);
+}
+.forge-btn:hover::before { transform: translateX(110%) skewX(-8deg); }
+.forge-btn:hover  { filter: brightness(1.08); }
+.forge-btn:active { transform: scale(0.98); }
+.forge-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.microcopy {
+  font-size: 11px; color: var(--silver-dim);
+  text-align: center; margin-top: 8px;
+}
+
+/* ─── NAV ───────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 40px; height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  background-color: rgba(12,26,43,0.97);
+  border-bottom: 1px solid rgba(168,178,188,0.12);
+  backdrop-filter: blur(12px);
+  transition: border-color .3s, background .3s;
+}
+nav.scrolled { border-bottom-color: rgba(168,178,188,0.2); }
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--silver); letter-spacing: 0.08em;
+  display: flex; align-items: center; gap: 10px;
+  transition: color .2s;
+}
+.nav-logo:hover { color: var(--white); }
+.nav-logo svg { width: 18px; height: 18px; }
+
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; color: var(--silver-light);
+  text-transform: uppercase; transition: color .2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute;
+  bottom: -3px; left: 0; right: 0;
+  height: 1px; background: var(--silver);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s var(--ease-out);
+}
+.nav-links a:hover, .nav-links a.active { color: var(--silver); }
+.nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+
+.nav-cta {
+  height: 36px; padding: 0 20px;
+  border: 1px solid var(--silver); color: var(--silver);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  border-radius: 2px;
+  transition: background .25s, color .25s;
+  display: flex; align-items: center;
+}
+.nav-cta:hover { background-color: var(--silver); color: var(--navy); }
+
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  cursor: none; background: none; border: none; padding: 4px;
+}
+.hamburger span {
+  display: block; width: 24px; height: 1px;
+  background-color: var(--silver);
+  transition: transform .3s var(--ease-out), opacity .3s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.mobile-menu {
+  position: fixed; inset: 0;
+  background-color: var(--navy-deep);
+  z-index: 999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s var(--ease-out);
+}
+.mobile-menu.open { opacity: 1; pointer-events: all; }
+.mobile-menu a {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 36px; font-weight: 700;
+  color: var(--white); text-transform: uppercase;
+  transition: color .2s;
+}
+.mobile-menu a:hover { color: var(--silver); }
+
+/* ─── HERO ──────────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 120px 40px 80px;
+  position: relative; overflow: hidden;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, #1A3550 0%, #102136 65%, #0C1A2B 100%);
+}
+
+/* Animated ambient orbs */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: orb-drift 12s ease-in-out infinite alternate;
+}
+.hero-orb-1 {
+  width: 400px; height: 400px;
+  background: rgba(26,53,80,0.6);
+  top: -10%; left: -8%;
+  animation-delay: 0s;
+}
+.hero-orb-2 {
+  width: 300px; height: 300px;
+  background: rgba(168,178,188,0.04);
+  bottom: 10%; right: -5%;
+  animation-delay: -4s;
+}
+@keyframes orb-drift {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(30px,20px) scale(1.1); }
+}
+
+.hero-content { position: relative; z-index: 2; max-width: 760px; }
+
+.hero-eyebrow {
+  margin-bottom: 24px;
+  animation: fade-up .8s var(--ease-out) .2s both;
+}
+
+#hero h1 {
+  font-size: clamp(52px, 8vw, 100px);
+  color: var(--white); text-transform: uppercase;
+  margin-bottom: 48px; line-height: 0.92;
+  animation: fade-up .9s var(--ease-out) .4s both;
+  letter-spacing: -0.02em;
+}
+
+/* Shimmer on hero title */
+#hero h1 span {
+  background: linear-gradient(90deg, var(--white) 0%, var(--silver) 50%, var(--white) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear 1.5s infinite;
+}
+@keyframes shimmer {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+
+.hero-form {
+  max-width: 460px; margin: 0 auto;
+  animation: fade-up .9s var(--ease-out) .65s both;
+}
+
+.scroll-indicator {
+  position: absolute; bottom: 32px;
+  left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  animation: fade-up 1s var(--ease-out) 1.1s both;
+}
+.scroll-line {
+  width: 1px; height: 44px;
+  background: linear-gradient(to bottom, var(--silver), transparent);
+  animation: scroll-pulse 2s ease-in-out infinite;
+}
+@keyframes scroll-pulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50%       { opacity: 1;   transform: scaleY(1.1); }
+}
+.scroll-indicator span {
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--silver-dim); text-transform: uppercase;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── LAYOUT ────────────────────────────────────────────────── */
+section { padding: 100px 40px; position: relative; }
+.section-inner { max-width: 1160px; margin: 0 auto; }
+.section-divider { width: 100%; height: 1px; background: rgba(168,178,188,0.1); }
+.bg-deep { background-color: var(--navy-deep); }
+.bg-base { background-color: var(--navy); }
+
+/* ─── ORIGEN ────────────────────────────────────────────────── */
+#origen { background-color: var(--navy-deep); overflow: hidden; }
+
+#origen .section-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+  position: relative; z-index: 1;
+}
+
+.origen-text { position: relative; padding-left: 28px; }
+.origen-text::before {
+  content: ''; position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px; background: linear-gradient(to bottom, var(--silver), transparent);
+}
+.origen-text h2 {
+  font-size: clamp(28px, 3.5vw, 46px);
+  text-transform: uppercase; color: var(--white);
+  margin-bottom: 28px;
+}
+.origen-text p {
+  font-size: 15px; color: var(--silver-light);
+  line-height: 1.85; margin-bottom: 18px;
+}
+.origen-text p:last-child { margin-bottom: 0; }
+
+/* Origen visual — placeholder ready for real photo */
+.origen-visual {
+  background-color: var(--navy-mid);
+  border-radius: 3px;
+  aspect-ratio: 4/5;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.origen-visual::before {
+  content: ''; position: absolute; inset: 14px;
+  border: 1px solid rgba(168,178,188,0.14);
+  border-radius: 2px; z-index: 1;
+  pointer-events: none;
+}
+/* When real photo added: */
+.origen-visual img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  filter: grayscale(100%);
+  transition: filter .6s var(--ease-out), transform .6s var(--ease-out);
+}
+.origen-visual:hover img { filter: grayscale(60%); transform: scale(1.03); }
+.origen-visual svg {
+  width: 130px; height: 130px;
+  opacity: 0.38; color: var(--silver);
+}
+
+/* ─── ARSENAL / LAS HERRAMIENTAS ────────────────────────────── */
+#arsenal {
+  background-color: var(--navy);
+  overflow: hidden;
+}
+
+/* ── LION SVG BACKGROUND ── */
+#arsenal::before {
+  content: '';
+  position: absolute;
+  top: -5%; right: -4%;
+  width: 58%; height: 110%;
+  background-image: url('lion.svg');   /* ← drop your lion.svg here */
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: top right;
+  opacity: 0.065;
+  pointer-events: none;
+  z-index: 0;
+  /* If lion.svg has a fill, blend it into the dark bg */
+  mix-blend-mode: luminosity;
+  transition: opacity .4s;
+}
+
+#arsenal .section-inner { position: relative; z-index: 1; }
+
+#arsenal .section-header {
+  text-align: center; margin-bottom: 64px;
+}
+#arsenal .section-header h2 {
+  font-size: clamp(36px, 5vw, 64px);
+  text-transform: uppercase; color: var(--white);
+  margin-bottom: 12px;
+}
+#arsenal .section-header > p { color: var(--silver-light); font-size: 15px; }
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* ── PRODUCT CARD ── */
+.product-card {
+  background-color: var(--navy-mid);
+  border: 1px solid rgba(168,178,188,0.12);
+  border-radius: 3px;
+  overflow: hidden;
+  transition: transform .4s var(--ease-out), border-color .4s, box-shadow .4s;
+  position: relative;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(168,178,188,0.4);
+  box-shadow: 0 20px 52px rgba(0,0,0,0.42), 0 0 30px rgba(168,178,188,0.08);
+}
+
+/* ── CARD IMAGE FRAME — real photo fills here ── */
+.product-img {
+  width: 100%;
+  height: 220px;       /* ← single value to adjust card image height */
+  overflow: hidden;
+  position: relative;
+  background-color: var(--navy-deep);
+}
+
+/* Overlay gradient at bottom — makes text readable */
+.product-img::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom,
+    transparent 50%,
+    rgba(12,26,43,0.5) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Real photo — add src to img tag */
+.product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top; /* override per-card in HTML style attr */
+  display: block;
+  filter: grayscale(100%);
+  transition: transform .5s var(--ease-out), filter .5s var(--ease-out);
+}
+.product-card:hover .product-img img {
+  transform: scale(1.05);
+  filter: grayscale(70%);
+}
+
+/* Fallback SVG icon (shown when no image) */
+.product-img-icon {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 0;
+}
+.product-img-icon svg {
+  width: 60px; height: 60px;
+  color: var(--silver-dim); opacity: 0.5;
+}
+/* Hide icon when real img is present */
+.product-img img ~ .product-img-icon { display: none; }
+
+.product-info { padding: 20px 18px; }
+.product-info h3 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 17px; color: var(--white);
+  text-transform: uppercase; font-weight: 700;
+  letter-spacing: 0.04em; margin-bottom: 6px;
+}
+.product-descriptor {
+  font-size: 13px; color: var(--silver);
+  font-style: italic; line-height: 1.5;
+}
+
+/* ─── EL OLIMPO / CTA ───────────────────────────────────────── */
+#olimpo {
+  background-color: var(--navy-deep);
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+
+/* ── MOUNTAINS SVG BACKGROUND ── */
+#olimpo::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 80%;
+  background-image: url('mountains.svg');  /* ← drop your mountains.svg here */
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom center;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: luminosity;
+}
+
+/* Hammer watermark (existing) */
+.cta-hammer {
+  position: absolute; right: -60px; top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.025; width: 380px; height: 380px; color: var(--silver);
+}
+
+#olimpo h2 {
+  font-size: clamp(34px, 5vw, 64px);
+  text-transform: uppercase; color: var(--white);
+  margin-bottom: 40px;
+}
+.cta-form { max-width: 460px; margin: 0 auto; }
+
+/* ─── MOTION: PARALLAX HINT ─────────────────────────────────── */
+/* Applied via JS — subtle vertical shift on scroll */
+.parallax-slow { will-change: transform; }
+
+/* ─── COUNTER STRIP ─────────────────────────────────────────── */
+/* Ready for when you have real numbers */
+.stats-strip {
+  display: none; /* enable when live */
+  border-top: 1px solid rgba(168,178,188,0.1);
+  border-bottom: 1px solid rgba(168,178,188,0.1);
+  padding: 32px 40px;
+  background: var(--navy-deep);
+}
+.stats-grid {
+  max-width: 1160px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3,1fr);
+  text-align: center; gap: 24px;
+}
+.stat-num {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 48px; font-weight: 700; color: var(--white);
+  line-height: 1;
+}
+.stat-label { font-size: 11px; letter-spacing: 0.2em; color: var(--silver); text-transform: uppercase; margin-top: 6px; }
+
+/* ─── FOOTER ────────────────────────────────────────────────── */
+footer {
+  background-color: var(--navy-dark);
+  padding: 60px 40px 40px;
+  border-top: 1px solid rgba(168,178,188,0.08);
+}
+.footer-inner { max-width: 1160px; margin: 0 auto; }
+.footer-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 48px; padding-bottom: 48px;
+  border-bottom: 1px solid rgba(168,178,188,0.07);
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 26px; font-weight: 700;
+  color: var(--silver); letter-spacing: 0.08em; margin-bottom: 6px;
+}
+.footer-tagline { font-size: 11px; color: var(--silver-dim); letter-spacing: 0.18em; text-transform: uppercase; }
+.footer-nav { display: flex; gap: 52px; }
+.footer-col h4 {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--silver); margin-bottom: 16px; font-weight: 600;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-col a { font-size: 13px; color: var(--silver-dim); transition: color .2s; }
+.footer-col a:hover { color: var(--white); }
+.footer-socials { display: flex; gap: 12px; align-items: flex-start; }
+.social-btn {
+  width: 40px; height: 40px;
+  border: 1px solid rgba(168,178,188,0.12); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .2s, background .2s;
+}
+.social-btn:hover { border-color: var(--silver); background: rgba(168,178,188,0.1); }
+.social-btn svg { width: 16px; height: 16px; color: var(--silver); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+.footer-legal { font-size: 12px; color: var(--silver-dim); opacity: 0.55; }
+
+/* ─── STICKY MOBILE ─────────────────────────────────────────── */
+#sticky-mobile {
+  display: none; position: fixed;
+  bottom: 0; left: 0; right: 0; z-index: 500;
+  padding: 12px 20px;
+  background: rgba(12,26,43,0.98);
+  border-top: 1px solid rgba(168,178,188,0.12);
+  backdrop-filter: blur(12px);
+  transform: translateY(100%);
+  transition: transform .35s var(--ease-out);
+}
+#sticky-mobile.visible { transform: translateY(0); }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .products-grid { grid-template-columns: repeat(4, minmax(130px, 1fr)); gap: 14px; }
+  .footer-nav { gap: 28px; }
+}
+
+@media (max-width: 768px) {
+  section { padding: 72px 24px; }
+  nav { padding: 0 24px; }
+  .nav-links, .nav-cta { display: none; }
+  .hamburger { display: flex; }
+  #sticky-mobile { display: block; }
+  #hero { padding: 100px 24px 80px; }
+  #origen .section-inner { grid-template-columns: 1fr; gap: 40px; }
+  .origen-visual { max-height: 280px; }
+  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .product-img { height: 180px; }
+  .footer-top { flex-direction: column; gap: 36px; }
+  .footer-nav { flex-direction: column; gap: 24px; }
+  .footer-bottom { flex-direction: column; gap: 14px; text-align: center; }
+  .cursor { display: none; }
+  body { cursor: auto; }
+  button, .forge-btn, .modal-close { cursor: pointer; }
+  #arsenal::before { width: 100%; opacity: 0.04; }
+}
+
+@media (max-width: 480px) {
+  #hero h1 { font-size: 40px; }
+  #modal { padding: 36px 20px 30px; }
+  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .product-img { height: 160px; }
+}
+
+/* ─── FUTURE DA HOOKS ───────────────────────────────────────── */
+/*
+  These classes are wired and ready — just add the content:
+
+  .has-video-bg    → swap section bg for looping video
+  .marquee-strip   → horizontal scrolling text band
+  .card-tilt       → 3D perspective tilt on hover (JS handles)
+  .magnetic-btn    → button follows cursor (JS handles)
+  .line-reveal     → text revealed line by line on scroll
+  .number-counter  → animates from 0 to target number
+*/
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- ══ MODAL ══════════════════════════════════════════════════ -->
+<div id="modal-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div id="modal">
+    <button class="modal-close" id="modal-close" aria-label="Cerrar">✕</button>
+    <div class="modal-icon">
+      <svg viewBox="0 0 40 40" fill="none">
+        <path d="M8 32L20 20M20 20L28 8L36 16L24 24M20 20L14 26" stroke="#A8B2BC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="30" y="4" width="8" height="14" rx="1" transform="rotate(45 30 4)" stroke="#A8B2BC" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="modal-rule"></div>
+    <span class="eyebrow" style="margin-bottom:18px;">Acceso anticipado — El Olimpo te abre sus puertas</span>
+    <div id="modal-form-wrap">
+      <h2 id="modal-title">Tu Ritual<br>Comienza Aquí</h2>
+      <p>Te ayudamos a definir la mejor rutina de cuidado para ti.</p>
+      <div class="form-group">
+        <input type="email" class="forge-input" id="modal-email"
+          placeholder="Tu email" autocomplete="email"
+          maxlength="254" spellcheck="false" autocorrect="off" autocapitalize="off">
+        <button class="forge-btn" id="modal-submit">Unirme al Olimpo</button>
+      </div>
+      <p class="microcopy">Acceso anticipado. Solo para los primeros.</p>
+    </div>
+    <div class="modal-success" id="modal-success" role="status">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#A8B2BC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="60" stroke-dashoffset="60">
+        <circle cx="24" cy="24" r="20"/>
+        <path d="M15 24l7 7 11-14"/>
+      </svg>
+      <h3>Estás en la Forja.</h3>
+      <span>El fuego llega pronto.</span>
+    </div>
+    <div class="modal-meander" aria-hidden="true">
+      <svg width="100%" height="8" viewBox="0 0 520 8" preserveAspectRatio="xMidYMid slice">
+        <path d="M0 4L4 4L4 0L8 0L8 8L12 8L12 4L16 4L16 0L20 0L20 8L24 8L24 4L28 4L28 0L32 0L32 8L36 8L36 4L40 4L40 0L44 0L44 8L48 8L48 4L52 4L52 0L56 0L56 8L60 8L60 4L64 4" stroke="#A8B2BC" stroke-width="1" fill="none" stroke-linecap="square"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV ════════════════════════════════════════════════════ -->
+<nav id="navbar">
+  <a href="#" class="nav-logo" aria-label="Hefesto — inicio">
+    <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path d="M3 15L9 9M9 9L13 3L17 7L11 13M9 9L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="12" y="1" width="4" height="7" rx="0.5" transform="rotate(45 12 1)" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    HEFESTO
+  </a>
+  <ul class="nav-links">
+    <li><a href="#origen">El Origen</a></li>
+    <li><a href="#arsenal">Las Herramientas</a></li>
+    <li><a href="#olimpo">El Olimpo</a></li>
+  </ul>
+  <a href="#" class="nav-cta" id="nav-cta-btn">Únete al Olimpo</a>
+  <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu" role="navigation" aria-label="Menú principal">
+  <a href="#origen"  class="mobile-link">El Origen</a>
+  <a href="#arsenal" class="mobile-link">Las Herramientas</a>
+  <a href="#olimpo"  class="mobile-link">El Olimpo</a>
+</div>
+
+<!-- ══ HERO ═══════════════════════════════════════════════════ -->
+<section id="hero" aria-label="Inicio">
+  <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
+  <div class="hero-content">
+    <span class="eyebrow hero-eyebrow">Hefesto. Forja tu propio Destino.</span>
+    <h1><span>Alcanza</span><br><span>tu</span><br><span>Olimpo</span></h1>
+    <div class="hero-form">
+      <div class="form-group">
+        <input type="email" class="forge-input" id="hero-email"
+          placeholder="Escribe tu mail" autocomplete="email"
+          maxlength="254" spellcheck="false" autocorrect="off" autocapitalize="off"
+          aria-label="Tu dirección de email">
+        <button class="forge-btn" id="hero-submit">Únete al Olimpo</button>
+      </div>
+      <p class="microcopy">Acceso anticipado. Solo para los primeros.</p>
+    </div>
+  </div>
+  <div class="scroll-indicator" aria-hidden="true">
+    <div class="scroll-line"></div>
+    <span>Descubre</span>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══ ORIGEN ═════════════════════════════════════════════════ -->
+<section id="origen" class="bg-deep">
+  <div class="section-inner">
+    <div class="origen-text reveal">
+      <span class="eyebrow">Acerca de Hefesto</span>
+      <h2>Hefesto nació en<br>Barcelona</h2>
+      <p>Del sueño de crear un espacio dedicado exclusivamente al hombre que quiere cuidarse y elevarse. No encontrábamos un lugar que nos representara. Un espacio donde la calidad, el criterio y la identidad masculina fueran el centro. Así nació Hefesto.</p>
+      <p>Cada producto ha sido seleccionado con un propósito: mejorar tu ritual diario para que puedas presentarte al mundo en tu mejor versión y alcanzar todo lo que te propones. Porque cuidarse no es vanidad. Es disciplina. Es respeto por ti mismo. Es la base desde la que construyes todo lo demás.</p>
+      <p>Creado por Nathan Bensalem. Porque yo también fui ese hombre que buscaba su espacio y no lo encontraba.</p>
+      <p>Bienvenido a tu Olimpo.</p>
+    </div>
+    <div class="origen-visual reveal reveal-delay-2">
+      <!--
+        PHOTO INTEGRATION:
+        <img src="origen-photo.webp" alt="Nathan Bensalem — fundador de Hefesto">
+        Remove the SVG below once photo is added.
+      -->
+      <svg viewBox="0 0 120 120" fill="none">
+        <path d="M20 90L55 55M55 55L75 20L95 40L60 75M55 55L38 72" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" color="#A8B2BC"/>
+        <rect x="76" y="10" width="20" height="38" rx="2" transform="rotate(45 76 10)" stroke="#A8B2BC" stroke-width="3"/>
+        <circle cx="60" cy="60" r="50" stroke="#A8B2BC" stroke-width="1" stroke-dasharray="4 6" opacity="0.3"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══ ARSENAL — LAS HERRAMIENTAS ════════════════════════════ -->
+<section id="arsenal" class="bg-base">
+  <!--
+    LION SVG BACKGROUND:
+    The ::before pseudo-element above references lion.svg
+    Place your lion.svg file in the same folder as this HTML.
+    Alternatively, replace url('lion.svg') with an inline SVG via JS
+    or paste the raw <svg> as a sibling element with class="section-bg-asset".
+  -->
+
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="eyebrow">Las Herramientas</span>
+      <h2>Eleva tu Rutina</h2>
+      <p>Cuidarse es prepararse para lo mejor.</p>
+    </div>
+
+    <div class="products-grid reveal-stagger">
+
+      <!-- CARD 1: ROSTRO -->
+      <div class="product-card">
+        <div class="product-img">
+          <!--
+            ADD PHOTO:
+            <picture>
+              <source srcset="rostro.webp" type="image/webp">
+              <img src="rostro.jpg" alt="Rutina de rostro" style="object-position: center top;">
+            </picture>
+            Remove the icon div below once photo is added.
+          -->
+          <div class="product-img-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <rect x="20" y="8" width="24" height="48" rx="6" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="20" y1="44" x2="44" y2="44" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="26" y="48" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1"/>
+              <circle cx="32" cy="26" r="6" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3>Rostro</h3>
+          <p class="product-descriptor">Limpiador facial, Hidratante, SPF 50.</p>
+        </div>
+      </div>
+
+      <!-- CARD 2: CABELLO -->
+      <div class="product-card">
+        <div class="product-img">
+          <!--
+            ADD PHOTO:
+            <picture>
+              <source srcset="cabello.webp" type="image/webp">
+              <img src="cabello.jpg" alt="Rutina de cabello" style="object-position: center 20%;">
+            </picture>
+          -->
+          <div class="product-img-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <path d="M20 12h24l-4 32H24L20 12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M18 12h28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M26 44v8M38 44v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M24 20h16M23 28h18M24 36h16" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+            </svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3>Cabello</h3>
+          <p class="product-descriptor">Champú anti-caspa, Loción anti-caída.</p>
+        </div>
+      </div>
+
+      <!-- CARD 3: CUERPO -->
+      <div class="product-card">
+        <div class="product-img">
+          <!--
+            ADD PHOTO:
+            <picture>
+              <source srcset="cuerpo.webp" type="image/webp">
+              <img src="cuerpo.jpg" alt="Rutina de cuerpo" style="object-position: center center;">
+            </picture>
+          -->
+          <div class="product-img-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <path d="M28 8h8v4l4 4v32l-4 4H28l-4-4V16l4-4V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M24 20h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="32" cy="38" r="4" stroke="currentColor" stroke-width="1"/>
+            </svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3>Cuerpo</h3>
+          <p class="product-descriptor">Gel de ducha, Desodorante, Hidratante corporal.</p>
+        </div>
+      </div>
+
+      <!-- CARD 4: FUNDAMENTALES -->
+      <div class="product-card">
+        <div class="product-img">
+          <!--
+            ADD PHOTO:
+            <picture>
+              <source srcset="fundamentales.webp" type="image/webp">
+              <img src="fundamentales.jpg" alt="Fundamentales" style="object-position: center top;">
+            </picture>
+          -->
+          <div class="product-img-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <ellipse cx="32" cy="28" rx="10" ry="18" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M22 28c0 5.5 4.5 10 10 10s10-4.5 10-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M32 38v14M26 52h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3>Fundamentales</h3>
+          <p class="product-descriptor">Raspa lengua, Filtro de ducha.</p>
+        </div>
+      </div>
+
+    </div><!-- /products-grid -->
+  </div><!-- /section-inner -->
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══ HERMANDAD — hidden until live ══════════════════════════ -->
+<section id="hermandad" style="display:none;" class="bg-base">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="eyebrow">La Hermandad</span>
+      <h2>Los Dioses No Necesitan<br>Reseñas. Los Hombres, Sí.</h2>
+    </div>
+    <div class="testimonials-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;">
+      <div style="background:var(--navy-mid);border-top:2px solid var(--silver);border-radius:0 0 3px 3px;padding:30px 26px;">
+        <blockquote style="font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--white);line-height:1.55;margin-bottom:18px;">"El nivel de precisión es otro mundo. Nunca volveré atrás."</blockquote>
+        <p style="font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--silver);">Carlos M. — Madrid</p>
+      </div>
+      <div style="background:var(--navy-mid);border-top:2px solid var(--silver);border-radius:0 0 3px 3px;padding:30px 26px;">
+        <blockquote style="font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--white);line-height:1.55;margin-bottom:18px;">"Finalmente una marca que entiende lo que un hombre necesita."</blockquote>
+        <p style="font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--silver);">Alejandro R. — Barcelona</p>
+      </div>
+      <div style="background:var(--navy-mid);border-top:2px solid var(--silver);border-radius:0 0 3px 3px;padding:30px 26px;">
+        <blockquote style="font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--white);line-height:1.55;margin-bottom:18px;">"El kit completo cambió completamente mi rutina. Brutal."</blockquote>
+        <p style="font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--silver);">Diego F. — Valencia</p>
+      </div>
+    </div>
+    <p style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--white);">+4.800 hombres ya están en la forja.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══ EL OLIMPO / CTA ════════════════════════════════════════ -->
+<section id="olimpo" class="bg-deep">
+  <!--
+    MOUNTAINS SVG BACKGROUND:
+    The ::before references mountains.svg
+    Place mountains.svg in the same folder as this HTML.
+  -->
+  <svg class="cta-hammer" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+    <path d="M80 320L200 200M200 200L280 80L360 160L240 280M200 200L140 260" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="260" y="40" width="80" height="140" rx="4" transform="rotate(45 260 40)" stroke="currentColor" stroke-width="8"/>
+  </svg>
+  <div class="section-inner" style="position:relative;z-index:2;text-align:center;">
+    <h2 class="reveal reveal-delay-1">Alcanza<br>El Olimpo</h2>
+    <div class="cta-form reveal reveal-delay-3">
+      <div class="form-group">
+        <input type="email" class="forge-input" id="footer-email"
+          placeholder="Escribe tu mail" autocomplete="email"
+          maxlength="254" spellcheck="false" autocorrect="off" autocapitalize="off"
+          aria-label="Tu dirección de email">
+        <button class="forge-btn" id="footer-submit">Únete al Olimpo</button>
+      </div>
+      <p class="microcopy">Acceso anticipado. Solo para los primeros.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">HEFESTO</div>
+        <div class="footer-tagline">Forja tu propio Destino</div>
+      </div>
+      <div class="footer-nav">
+        <div class="footer-col">
+          <h4>Secciones</h4>
+          <ul>
+            <li><a href="#origen">Acerca de Hefesto</a></li>
+            <li><a href="#arsenal">Las Herramientas</a></li>
+            <li><a href="#olimpo">El Olimpo</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Soporte</h4>
+          <ul>
+            <li><a href="#">Contacto</a></li>
+            <li><a href="#">Legal</a></li>
+            <li><a href="#">Privacidad</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Hefesto</h4>
+          <ul>
+            <li><a href="#">Sobre nosotros</a></li>
+            <li><a href="#">Prensa</a></li>
+            <li><a href="#">Afiliados</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-socials">
+        <a href="#" class="social-btn" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="20" rx="5"/>
+            <circle cx="12" cy="12" r="5"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="TikTok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-legal">© 2026 Hefesto. Todos los derechos reservados.</p>
+      <p class="footer-legal">Forja tu propio Destino.</p>
+    </div>
+  </div>
+</footer>
+
+<div id="sticky-mobile">
+  <button class="forge-btn" id="sticky-btn">Unirme al Olimpo</button>
+</div>
+
+<!-- ══ JAVASCRIPT ══════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ════════════════════════════════════════════════════════════
+     SECURITY — INPUT SANITIZATION & RATE LIMITING
+     ════════════════════════════════════════════════════════════ */
+
+  // Strict email validator — rejects all injection patterns
+  function isValidEmail(raw) {
+    if (!raw || typeof raw !== 'string') return false;
+    const v = raw.trim();
+    // Length bounds
+    if (v.length < 6 || v.length > 254) return false;
+    // Must contain exactly one @
+    const atIdx = v.indexOf('@');
+    if (atIdx < 1 || v.indexOf('@', atIdx + 1) !== -1) return false;
+    // Local part max 64 chars
+    const local = v.slice(0, atIdx);
+    if (local.length > 64) return false;
+    // Domain must have at least one dot after @
+    const domain = v.slice(atIdx + 1);
+    if (!domain.includes('.') || domain.startsWith('.') || domain.endsWith('.')) return false;
+    // RFC 5321 safe pattern — blocks scripts, SQL, special chars
+    const RFC_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+    if (!RFC_RE.test(v)) return false;
+    // Block obvious injection / XSS patterns
+    const BLOCK = /<|>|script|javascript|on\w+=|data:|vbscript|SELECT|INSERT|DROP|--|;/i;
+    if (BLOCK.test(v)) return false;
+    return true;
+  }
+
+  // Client-side rate limiter — 3 attempts per 5 minutes per form
+  const _attempts = {};
+  function canAttempt(formId) {
+    const now = Date.now();
+    const WIN = 5 * 60 * 1000; // 5 min window
+    const MAX = 3;
+    if (!_attempts[formId]) _attempts[formId] = [];
+    _attempts[formId] = _attempts[formId].filter(t => now - t < WIN);
+    if (_attempts[formId].length >= MAX) return false;
+    _attempts[formId].push(now);
+    return true;
+  }
+
+  // Honeypot — invisible field to catch bots (add to your forms if needed)
+  // <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+  // Check: if honeypot has value → reject silently
+
+  /* ════════════════════════════════════════════════════════════
+     CURSOR
+     ════════════════════════════════════════════════════════════ */
+  const cursor = document.getElementById('cursor');
+  let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+
+  if (cursor && window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+    });
+    // Smooth cursor lag for premium feel
+    function animateCursor() {
+      curX += (mouseX - curX) * 0.15;
+      curY += (mouseY - curY) * 0.15;
+      cursor.style.left = curX + 'px';
+      cursor.style.top  = curY + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    document.querySelectorAll('a, button, .product-card, .forge-input').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+    });
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     MODAL
+     ════════════════════════════════════════════════════════════ */
+  const KEY     = 'hefesto_v3_seen';
+  const WEEK    = 604800000;
+  const overlay = document.getElementById('modal-overlay');
+  const mClose  = document.getElementById('modal-close');
+  const navCta  = document.getElementById('nav-cta-btn');
+  const sticky  = document.getElementById('sticky-btn');
+
+  function openModal() {
+    overlay.classList.remove('hidden');
+    requestAnimationFrame(() => overlay.classList.add('visible'));
+    document.body.style.overflow = 'hidden';
+    // Return focus to modal for a11y
+    setTimeout(() => { document.getElementById('modal-email').focus(); }, 400);
+  }
+  function closeModal() {
+    overlay.classList.remove('visible');
+    setTimeout(() => { overlay.classList.add('hidden'); document.body.style.overflow = ''; }, 400);
+    localStorage.setItem(KEY, Date.now());
+  }
+
+  const seen = localStorage.getItem(KEY);
+  if (!seen || Date.now() - +seen > WEEK) setTimeout(openModal, 1200);
+
+  mClose && mClose.addEventListener('click', closeModal);
+  overlay && overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  navCta  && navCta.addEventListener('click', e => { e.preventDefault(); openModal(); });
+  sticky  && sticky.addEventListener('click', openModal);
+
+  /* ════════════════════════════════════════════════════════════
+     KLAVIYO SUBMIT — secured
+     ════════════════════════════════════════════════════════════ */
+  async function submit(input, formId, wrap, successEl) {
+    if (!canAttempt(formId)) {
+      // Too many attempts — silent fail with message
+      showInputError(input, 'Demasiados intentos. Espera un momento.');
+      return;
+    }
+
+    const raw = input.value.trim();
+    if (!isValidEmail(raw)) {
+      showInputError(input);
+      return;
+    }
+
+    const email = raw.toLowerCase(); // normalise
+
+    const btn = input.nextElementSibling;
+    const originalText = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = '...'; btn.disabled = true; }
+
+    try {
+      await fetch(
+        'https://a.klaviyo.com/client/subscriptions/?company_id=TGBsWu',
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'revision': '2024-10-15'
+          },
+          body: JSON.stringify({
+            data: {
+              type: 'subscription',
+              attributes: {
+                custom_source: 'Hefesto Website',
+                profile: {
+                  data: {
+                    type: 'profile',
+                    attributes: { email }
+                  }
+                }
+              },
+              relationships: {
+                list: { data: { type: 'list', id: 'TDTGxy' } }
+              }
+            }
+          })
+        }
+      );
+    } catch (err) {
+      console.error('Klaviyo error:', err);
+    }
+
+    if (btn) { btn.textContent = originalText; btn.disabled = false; }
+
+    if (wrap && successEl) {
+      wrap.style.display = 'none';
+      successEl.classList.add('visible');
+      setTimeout(() => {
+        if (!overlay.classList.contains('hidden')) closeModal();
+      }, 2600);
+    } else {
+      input.value = '';
+      if (btn) {
+        btn.textContent = '✓ ¡Estás dentro!';
+        btn.style.cssText = 'background:#1A3550;color:#A8B2BC;';
+        setTimeout(() => { btn.textContent = originalText; btn.style.cssText = ''; }, 3000);
+      }
+    }
+  }
+
+  function showInputError(input, msg) {
+    input.classList.add('error');
+    input.setAttribute('aria-invalid', 'true');
+    if (msg) input.setAttribute('title', msg);
+    input.focus();
+    setTimeout(() => {
+      input.classList.remove('error');
+      input.removeAttribute('aria-invalid');
+    }, 1800);
+  }
+
+  // Wire up all forms
+  function wireForm(submitId, emailId, formId, wrapId, successId) {
+    const s = document.getElementById(submitId);
+    const e = document.getElementById(emailId);
+    const w = wrapId   ? document.getElementById(wrapId)   : null;
+    const o = successId ? document.getElementById(successId) : null;
+    if (s && e) {
+      s.addEventListener('click', () => submit(e, formId, w, o));
+      e.addEventListener('keydown', ev => { if (ev.key === 'Enter') submit(e, formId, w, o); });
+    }
+  }
+  wireForm('modal-submit',  'modal-email',  'modal',  'modal-form-wrap', 'modal-success');
+  wireForm('hero-submit',   'hero-email',   'hero',    null, null);
+  wireForm('footer-submit', 'footer-email', 'footer',  null, null);
+
+  /* ════════════════════════════════════════════════════════════
+     SCROLL REVEAL
+     ════════════════════════════════════════════════════════════ */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+
+  /* ════════════════════════════════════════════════════════════
+     PARALLAX (subtle — background assets only)
+     ════════════════════════════════════════════════════════════ */
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        const sy = window.scrollY;
+        // Hero orbs drift on scroll
+        const o1 = document.querySelector('.hero-orb-1');
+        const o2 = document.querySelector('.hero-orb-2');
+        if (o1) o1.style.transform = `translateY(${sy * 0.12}px)`;
+        if (o2) o2.style.transform = `translateY(${sy * -0.08}px)`;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  /* ════════════════════════════════════════════════════════════
+     NAVBAR scroll state + sticky mobile
+     ════════════════════════════════════════════════════════════ */
+  const heroEl = document.getElementById('hero');
+  const sBar   = document.getElementById('sticky-mobile');
+  const navbar = document.getElementById('navbar');
+
+  window.addEventListener('scroll', () => {
+    if (heroEl) sBar.classList.toggle('visible', heroEl.getBoundingClientRect().bottom < 0);
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  /* ════════════════════════════════════════════════════════════
+     SCROLL SPY
+     ════════════════════════════════════════════════════════════ */
+  const spy = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting)
+        document.querySelectorAll('.nav-links a').forEach(a =>
+          a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('section[id]').forEach(s => spy.observe(s));
+
+  /* ════════════════════════════════════════════════════════════
+     MOBILE MENU
+     ════════════════════════════════════════════════════════════ */
+  const burger = document.getElementById('hamburger');
+  const menu   = document.getElementById('mobile-menu');
+  burger && burger.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    burger.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => {
+    burger.classList.remove('open');
+    menu.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }));
+
+  /* ════════════════════════════════════════════════════════════
+     SMOOTH SCROLL
+     ════════════════════════════════════════════════════════════ */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', function(e) {
+      const t = document.querySelector(this.getAttribute('href'));
+      if (t) {
+        e.preventDefault();
+        const offset = 68; // nav height
+        const top = t.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
+  });
+
+  /* ════════════════════════════════════════════════════════════
+     CARD TILT — 3D hover effect on product cards
+     ════════════════════════════════════════════════════════════ */
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width  - 0.5; // -0.5 to 0.5
+      const y = (e.clientY - rect.top)  / rect.height - 0.5;
+      card.style.transform = `translateY(-6px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg)`;
+      card.style.transition = 'transform .1s linear, border-color .4s, box-shadow .4s';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+      card.style.transition = 'transform .4s cubic-bezier(0.22,1,0.36,1), border-color .4s, box-shadow .4s';
+    });
+  });
+
+  /* ════════════════════════════════════════════════════════════
+     HERO SHIMMER — stagger letter animation on load
+     ════════════════════════════════════════════════════════════ */
+  // Already handled via CSS animation on h1 span elements
+
+  /* ════════════════════════════════════════════════════════════
+     FUTURE DA HOOKS — ready to activate
+
+     1. MARQUEE STRIP
+     Add after section-divider:
+     <div class="marquee-strip" style="
+       overflow:hidden; white-space:nowrap; padding:12px 0;
+       background:var(--navy-mid); border-top:1px solid rgba(168,178,188,0.1);
+       border-bottom:1px solid rgba(168,178,188,0.1);">
+       <span style="display:inline-block; animation: marquee 20s linear infinite;
+         font-size:11px; letter-spacing:0.3em; color:var(--silver); text-transform:uppercase;">
+         FORJA TU DESTINO &nbsp;&nbsp;·&nbsp;&nbsp; NACIDO EN BARCELONA &nbsp;&nbsp;·&nbsp;&nbsp;
+         EL OLIMPO TE ESPERA &nbsp;&nbsp;·&nbsp;&nbsp; HEFESTO &nbsp;&nbsp;·&nbsp;&nbsp; (×8)
+       </span>
+     </div>
+     CSS: @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+     2. VIDEO HERO LOOP
+     Replace hero radial-gradient bg with:
+     <video autoplay muted loop playsinline class="hero-video"
+       style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.18;z-index:1;">
+       <source src="hero-loop.mp4" type="video/mp4">
+     </video>
+
+     3. NUMBER COUNTERS (enable stats-strip, set display:flex)
+     <span class="stat-num" data-target="4800">0</span>
+     JS: animate from 0 to data-target on intersection
+
+     4. MAGNETIC BUTTON (CTA forge-btn)
+     forge-btn.addEventListener('mousemove', e => {
+       const r = btn.getBoundingClientRect();
+       const x = (e.clientX - r.left - r.width/2)  * 0.25;
+       const y = (e.clientY - r.top  - r.height/2) * 0.25;
+       btn.style.transform = `translate(${x}px,${y}px)`;
+     });
+     forge-btn.addEventListener('mouseleave', () => btn.style.transform = '');
+
+     5. INLINE SVG BACKGROUNDS (avoid external file dependency)
+     Replace url('lion.svg') with a base64 encoded SVG string:
+     background-image: url("data:image/svg+xml,...encoded...");
+     Use: https://yoksel.github.io/url-encoder/ to encode your SVG
+     ════════════════════════════════════════════════════════════ */
+
+})();
+</script>
+</body>
+</html>
