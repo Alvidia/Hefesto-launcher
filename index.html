@@ -505,18 +505,28 @@ section { padding: 100px 40px; position: relative; }
   transition: opacity .4s;
 }
 
-#arsenal .section-inner { position: relative; z-index: 1; }
+/* ─── ARSENAL SECTION ───────────────────────────────────────── */
+#arsenal .section-inner {
+  position: relative;
+  z-index: 1;
+}
 
 #arsenal .section-header {
-  text-align: center; margin-bottom: 64px;
+  text-align: center;
+  margin-bottom: 64px;
 }
 #arsenal .section-header h2 {
   font-size: clamp(36px, 5vw, 64px);
-  text-transform: uppercase; color: var(--white);
+  text-transform: uppercase;
+  color: var(--white);
   margin-bottom: 12px;
 }
-#arsenal .section-header > p { color: var(--silver-light); font-size: 15px; }
+#arsenal .section-header > p {
+  color: var(--silver-light);
+  font-size: 15px;
+}
 
+/* ── GRID ── */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -529,8 +539,8 @@ section { padding: 100px 40px; position: relative; }
   border: 1px solid rgba(168,178,188,0.12);
   border-radius: 3px;
   overflow: hidden;
-  transition: transform .4s var(--ease-out), border-color .4s, box-shadow .4s;
   position: relative;
+  transition: transform .4s var(--ease-out), border-color .4s, box-shadow .4s;
 }
 .product-card:hover {
   transform: translateY(-6px);
@@ -538,42 +548,42 @@ section { padding: 100px 40px; position: relative; }
   box-shadow: 0 20px 52px rgba(0,0,0,0.42), 0 0 30px rgba(168,178,188,0.08);
 }
 
-/* ── CARD IMAGE FRAME — real photo fills here ── */
+/* ── CARD IMAGE FRAME ── */
 .product-img {
   width: 100%;
-  height: 220px;       /* ← single value to adjust card image height */
+  aspect-ratio: 3 / 4;        /* portrait lock — consistent on all screens */
   overflow: hidden;
   position: relative;
   background-color: var(--navy-deep);
 }
 
-/* Overlay gradient at bottom — makes text readable */
+/* Bottom gradient — text readability */
 .product-img::after {
   content: '';
   position: absolute; inset: 0;
   background: linear-gradient(to bottom,
-    transparent 50%,
-    rgba(12,26,43,0.5) 100%);
+    transparent 55%,
+    rgba(12,26,43,0.6) 100%);
   z-index: 1;
   pointer-events: none;
 }
 
-/* Real photo — add src to img tag */
+/* ── PHOTO ── */
 .product-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top; /* override per-card in HTML style attr */
+  object-position: center top;
   display: block;
   filter: grayscale(100%);
   transition: transform .5s var(--ease-out), filter .5s var(--ease-out);
 }
 .product-card:hover .product-img img {
   transform: scale(1.05);
-  filter: grayscale(70%);
+  filter: grayscale(60%);
 }
 
-/* Fallback SVG icon (shown when no image) */
+/* ── SVG FALLBACK (auto-hides when img present) ── */
 .product-img-icon {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
@@ -583,20 +593,49 @@ section { padding: 100px 40px; position: relative; }
   width: 60px; height: 60px;
   color: var(--silver-dim); opacity: 0.5;
 }
-/* Hide icon when real img is present */
 .product-img img ~ .product-img-icon { display: none; }
 
-.product-info { padding: 20px 18px; }
+/* ── CARD TEXT ── */
+.product-info {
+  padding: 20px 18px;
+}
 .product-info h3 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 17px; color: var(--white);
-  text-transform: uppercase; font-weight: 700;
-  letter-spacing: 0.04em; margin-bottom: 6px;
+  font-size: 17px; font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
 }
 .product-descriptor {
-  font-size: 13px; color: var(--silver);
-  font-style: italic; line-height: 1.5;
+  font-size: 13px;
+  color: var(--silver);
+  font-style: italic;
+  line-height: 1.5;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
 
 /* ─── EL OLIMPO / CTA ───────────────────────────────────────── */
 #olimpo {
